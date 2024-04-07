@@ -28,7 +28,6 @@ ZOHO.embeddedApp.on("PageLoad", function (data) {
     });
   });
 
-
 ZOHO.embeddedApp.init();
 
 $(document).ready(function() {
@@ -54,57 +53,71 @@ $(document).ready(function() {
       }
 
       checkForExistingContact(idInput)
-      .then(function(response) {
-        if (response.data.length > 0) {
-          console.log("Existing contact found:", response.data[0]);
-            // If contact exists, proceed with role creation and association
-            let contact = response.data[0];
-            // Create Contact Role entry and associate it
-            createContactRoleEntry(contact.id, selectedRole).then(function(crResponse) {
-              let contactRoleId = crResponse.data[0].details.id;
-              associateContactRoleWithContact(contactRoleId, contact.id);
-              associateContactRoleWithDeal(contactRoleId, entityId);
-            });
-        } else {
-            console.log("Entered the else because no contact was found.");
-            // No contact found logic here, including showing additional fields
-            showAdditionalInputFields();
-            $('#additionalSubmit').on('click', function() { // Ensure not to bind multiple times
-              var firstName = $('#firstName').val().trim();
-              var lastName = $('#lastName').val().trim();
-              var phoneNumber = $('#phoneNumber').val().trim();
-              
-              if (!firstName || !lastName || !phoneNumber) {
-                  swal('Error', 'Please provide the full contact details.', 'error');
-                  return;
-              }
-              
-              createContactEntry({firstName, lastName, phoneNumber, idInput}).then(function(newContactResponse) {
-                let newContactId = newContactResponse.data[0].details.id;
-                createContactRoleEntry(newContactId, selectedRole).then(function(newCrResponse) {
-                  let newContactRoleId = newCrResponse.data[0].details.id;
-                  associateContactRoleWithContact(newContactRoleId, newContactId);
-                  associateContactRoleWithDeal(newContactRoleId, entityId);
-                });
-              });
+      .then(function(contact) {
+        if (contact) {
+          console.log("Existing contact found:", contact);
+          // If contact exists, proceed with role creation and association
+          // let contact = response.data[0];
+          // Create Contact Role entry and associate it
+          createContactRoleEntry(idInput, selectedRole, contact.Full_Name).then(function(crResponse) {
+            let contactRoleId = crResponse.data[0].details.id;
+            associateContactRoleWithContact(contactRoleId, contact.id);
+            associateContactRoleWithDeal(contactRoleId, entityId);
           });
-      }
+        } else {
+          console.log("Entered the else because no contact was found.");
+          // No contact found logic here, including showing additional fields
+          showAdditionalInputFields();
+          $('#additionalSubmit').off().on('click', function() { // Ensure not to bind multiple times
+            var firstName = $('#firstName').val().trim();
+            var lastName = $('#lastName').val().trim();
+            var phoneNumber = $('#phoneNumber').val().trim();
+        
+            if (!firstName || !lastName || !phoneNumber) {
+                swal('Error', 'Please provide the full contact details.', 'error');
+                return;
+            }
+        
+            console.log('Attempting to create contact entry');
+            createContactEntry(idInput, {firstName, lastName, phoneNumber})
+                .then(newContactResponse => {
+                    console.log('Contact creation response:', newContactResponse);
+                    // Adjusted to match the actual response structure
+                    if (newContactResponse && newContactResponse.length > 0 && newContactResponse[0].details) {
+                        let newContactId = newContactResponse[0].details.id;
+                        let fullName = `${firstName} ${lastName}`;
+                        console.log(`Creating contact role entry for ID: ${newContactId}`);
+                        return createContactRoleEntry(newContactId, selectedRole, fullName);
+                    } else {
+                        throw new Error('Unexpected newContactResponse structure');
+                    }
+                })
+                .then(newCrResponse => {
+                    // Ensure this log and the subsequent logic match the actual structure of newCrResponse
+                    let newContactRoleId = newCrResponse[0].details.id; // Adjust based on actual structure
+                    associateContactRoleWithContact(newContactRoleId, newContactId); // Make sure newContactId is accessible here
+                    associateContactRoleWithDeal(newContactRoleId, entityId);
+                })
+                .catch(error => {
+                    console.error('An error occurred:', error);
+                });
+          });
+        }
       })
       .catch(function(error) {
-          console.error('An error occurred:', error);
+        console.error('An error occurred:', error);
       });
 
       console.log("Selected role:", selectedRole, "ID:", idInput);
   });
-
-  // Optionally handle the cancel button click for custom behavior
   $('#cancelButton').on('click', function() {
-      ZOHO.CRM.UI.Popup.close().then(function() {
-          console.log("Popup closed");
-      });
+    ZOHO.CRM.UI.Popup.close().then(function() {
+        console.log("Popup closed");
+    }).catch(function(error) {
+        console.error('An error occurred:', error);
+    });
   });
 });
-
 
 //--------------------------------------------------------------------------------
 function isValidId(id) {
@@ -125,145 +138,93 @@ function isValidId(id) {
   }
   return { valid: true };
 }
-
-
 //--------------------------------------------------------------------------------
-// function checkForExistingContact(id) {
-//   return ZOHO.CRM.API.searchRecords({
-//       Entity: 'Contacts',
-//       Type: 'criteria',
-//       Criteria: `Id_No:equals:${id}`, 
-//   });
-// }
-// function checkForExistingContact(id) {
-//   // Assuming `Id_No` is the field you're searching by.
-//   // This approach uses getRecords with a query parameter as a workaround.
-//   return ZOHO.CRM.API.getRecords({
-//       Entity: 'Contacts',
-//       // Use a query parameter to filter by Id_No. Adjust the field name as necessary.
-//       params: {
-//           "criteria": `(Id_No:equals:${id})`
-//       }
-//   }).then(function(response) {
-//       console.log("Filtered search results:", response.data);
-//       return response; // Return the response for further use
-//   }).catch(function(error) {
-//       console.error("Error during getRecords for contact check:", error);
-//   });
-// }
-// function checkForExistingContact(id) {
-//   return findContactByIdNo(id);
-// }
 function checkForExistingContact(id) {
-  return findContactByIdNo(id).then(foundContact => {
-      if (foundContact) {
-          console.log('Found matching contact:', foundContact);
-          // Do something with foundContact
-          return foundContact; // You can process or return the found contact here
-      } else {
-          console.log('No contact found with the given Id_No.');
-          return null; // Or handle the "not found" case
-      }
+  let func_name = "testFindingIDs";           //production
+  let req_data = {
+    arguments: JSON.stringify({
+      id: id,
+    }),
+  };
+  return ZOHO.CRM.FUNCTIONS.execute(func_name, req_data).then(function(data) {
+    try {
+        if (data.details.output) {
+            let contactDetails = JSON.parse(data.details.output); // Directly parsing the JSON string to an object
+            console.log("Parsed contact details:", contactDetails);
+
+            // Now you have the contact details object and can compare the Id_No
+            if (contactDetails.Id_No && contactDetails.Id_No === id) {
+                console.log("Matching ID found:", contactDetails.Id_No);
+                return contactDetails; // Return the matching contact details
+            } else {
+                console.log("No matching ID found for:", id);
+                return null; // Or handle accordingly if no match is found
+            }
+        } else {
+            console.error("No output in data.details to parse:", data.details);
+            return null;
+        }
+    } catch (error) {
+        console.error("Error parsing response from custom function:", error);
+        return null;
+    }
+  }).catch(function(error) {
+      console.error("Error executing custom function:", error);
+      return null;
   });
 }
-
-// function fetchAllContacts() {
-//   return ZOHO.CRM.API.getAllRecords({Entity:"Contacts"})
-//       .then(function(response) {
-//           return response.data; // Assuming the data is directly accessible
-//       })
-//       .catch(function(error) {
-//           console.error('Error fetching contacts:', error);
-//           return [];
-//       });
-// }
-function fetchAllContacts() {
-  let page = 1;
-  const perPage = 200; // Adjust based on API limits
-  let allContacts = [];
-
-  function fetchPage() {
-      return ZOHO.CRM.API.getAllRecords({
-          Entity: "Contacts",
-          page: page,
-          per_page: perPage
-      }).then(response => {
-          const contacts = response.data || [];
-          allContacts = allContacts.concat(contacts);
-          if (contacts.length === perPage) {
-              page++;
-              return fetchPage(); // Recursively fetch next page
-          } else {
-              return allContacts; // All pages have been fetched
-          }
-      }).catch(error => {
-          console.error('Error fetching contacts:', error);
-          return []; // Return an empty array on error
-      });
-  }
-
-  return fetchPage();
-}
-
-
-// function findContactByIdNo(idNoInput) {
-//   fetchAllContacts().then(contacts => {
-//       const foundContact = contacts.find(contact => contact['Id_No'] === idNoInput);
-//       if(foundContact) {
-//           console.log('Found matching contact:', foundContact);
-//           // Process the found contact as needed
-//       } else {
-//           console.log('No contact found with the given Id_No.');
-//       }
-//   });
-// }
-function findContactByIdNo(idNoInput) {
-  return fetchAllContacts().then(contacts => {
-      return contacts.find(contact => contact['Id_No'] === idNoInput) || null;
-  });
-}
-
-
 //--------------------------------------------------------------------------------
 function createContactRoleEntry(id, role, fullName) {
+  if (role === "tenant") {
+    role = "דייר פוטנציאלי";
+  } else if (role === "guarantor") {
+    role = "ערב פוטנציאלי";
+  }
   var contactRoleData = {
       Entity: 'Contacts_Roles',
-      data: {
-          Role: role,
+      APIData: {
           ID_NO: id,
+          Role: role,
           full_name: fullName,
       },
+      Trigger: ["workflow", "blueprint"]
   };
-  ZOHO.CRM.API.insertRecord(contactRoleData).then(function(response) {
-      console.log("Contact role entry created:", response.data);
-      ZOHO.CRM.UI.Popup.close().then(function() {
-          console.log("Popup closed");
+  
+  return ZOHO.CRM.API.insertRecord(contactRoleData)
+      .then(function(response) {
+          console.log("Contact role entry created:", response.data);
+          return response.data;
+      })
+      .catch(function(error) {
+          console.error('An error occurred:', error);
+          throw error;
       });
-  }).catch(function(error) {
-      console.error('An error occurred:', error);
-  });
 }
-
-
 //--------------------------------------------------------------------------------
 function createContactEntry(id, contactInfo) {
-  var contactData = {
-      Entity: 'Contacts',
-      data: {
-          Id_No: id,
-          First_Name: contactInfo.firstName,
-          Last_Name: contactInfo.lastName,
-          Mobile: contactInfo.phoneNumber,
-      },
+  var recordData = {
+      Id_No: id,
+      First_Name: contactInfo.firstName,
+      Last_Name: contactInfo.lastName,
+      Mobile: contactInfo.phoneNumber,
   };
-  ZOHO.CRM.API.insertRecord(contactData).then(function(response) {
-      console.log("Contact created:", response.data);
-  }).catch(function(error) {
-      console.error('An error occurred:', error);
-  });
+
+  var config = {
+      Entity: "Contacts",
+      APIData: recordData,
+      Trigger: ["workflow", "blueprint"]
+  };
+
+  return ZOHO.CRM.API.insertRecord(config)
+      .then(function(response) {
+          console.log("Contact created:", response.data);
+          return response.data;
+      })
+      .catch(function(error) {
+          console.error('An error occurred:', error);
+          throw error;
+      });
 }
-
-
 //--------------------------------------------------------------------------------
 function showAdditionalInputFields() {
   var fieldsHtml = `
@@ -274,8 +235,6 @@ function showAdditionalInputFields() {
   `;
   $('#role-selection-form').append(fieldsHtml);
 }
-
-
 //--------------------------------------------------------------------------------
 function associateContactRoleWithContact(contactRoleId, contactId) {
   ZOHO.CRM.API.updateRecord({
@@ -290,8 +249,6 @@ function associateContactRoleWithContact(contactRoleId, contactId) {
       console.error("Failed to associate Contact Role with Contact:", error);
   });
 }
-
-
 //--------------------------------------------------------------------------------
 function associateContactRoleWithDeal(contactRoleId, dealId) {
   ZOHO.CRM.API.updateRecord({
