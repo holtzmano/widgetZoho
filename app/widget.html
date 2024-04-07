@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <script src="https://static.zohocdn.com/zohocrm/v2.0/sdk/3.0.0/sdk.js"></script>
+  <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/func.js"></script>
+  <script src="assets/js/sweetalert.min.js"></script>
+  <title>Deal Contacts Widget</title>
+
+  <style></style>
+</head>
+<body>
+  <div id="widget-container">
+    <h2>הוספת פוטנציאלי</h2>
+    <form id="role-selection-form">
+      <div class="checkbox-group">
+          <input type="checkbox" id="tenantCheckbox" name="role" value="tenant">
+          <label for="tenantCheckbox">דייר</label>
+      </div>
+      <div class="checkbox-group">
+          <input type="checkbox" id="guarantorCheckbox" name="role" value="guarantor">
+          <label for="guarantorCheckbox">ערב</label>
+      </div>
+      <div class="input-group">
+          <label for="idInput">תעודת זהות:</label>
+          <input type="text" id="idInput" name="idInput">
+      </div>
+      <div class="button-group">
+          <button type="button" class="button button-primary" id="confirmButton">אישור</button>
+          <button type="button" class="button button-secondary" id="cancelButton">ביטול</button>
+      </div>
+    </form>
+  </div>
+   
+</body>
+</html>
