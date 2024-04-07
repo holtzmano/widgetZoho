@@ -85,8 +85,9 @@ $(document).ready(function() {
                     // Adjusted to match the actual response structure
                     if (newContactResponse && newContactResponse.length > 0 && newContactResponse[0].details) {
                         let newContactId = newContactResponse[0].details.id;
+                        let fullName = `${firstName} ${lastName}`;
                         console.log(`Creating contact role entry for ID: ${newContactId}`);
-                        return createContactRoleEntry(newContactId, selectedRole, `${firstName} ${lastName}`);
+                        return createContactRoleEntry(newContactId, selectedRole, fullName);
                     } else {
                         throw new Error('Unexpected newContactResponse structure');
                     }
@@ -176,7 +177,7 @@ function checkForExistingContact(id) {
 function createContactRoleEntry(id, role, fullName) {
   if (role === "tenant") {
     role = "דייר פוטנציאלי";
-  } else if (role === "surity") {
+  } else if (role === "guarantor") {
     role = "ערב פוטנציאלי";
   }
   var contactRoleData = {
