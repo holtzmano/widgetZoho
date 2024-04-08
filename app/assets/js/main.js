@@ -1,8 +1,9 @@
+let entityId;
 ZOHO.embeddedApp.on("PageLoad", function (data) {
   console.log(data);
   console.log(data.EntityId);
   console.log(data.Entity);
-  let entityId = data.EntityId;
+  entityId = data.EntityId;
   let entityName = data.Entity;
 
   ZOHO.CRM.UI.Resize({ height: "600", width: "800" });
@@ -60,8 +61,12 @@ $(document).ready(function() {
           // let contact = response.data[0];
           // Create Contact Role entry and associate it
           createContactRoleEntry(idInput, selectedRole, contact.Full_Name).then(function(crResponse) {
-            let contactRoleId = crResponse.data[0].details.id;
+            let contactRoleId = crResponse[0].details.id;
+            console.log(`Contact role entry created with ID: ${contactRoleId}`);
+            console.log("Contact ID:", contact.id);
             associateContactRoleWithContact(contactRoleId, contact.id);
+            entityId = entityId[0];
+            console.log("Entity ID:", entityId);
             associateContactRoleWithDeal(contactRoleId, entityId);
           });
         } else {
@@ -77,30 +82,25 @@ $(document).ready(function() {
                 swal('Error', 'Please provide the full contact details.', 'error');
                 return;
             }
-        
+
             console.log('Attempting to create contact entry');
-            createContactEntry(idInput, {firstName, lastName, phoneNumber})
-                .then(newContactResponse => {
-                    console.log('Contact creation response:', newContactResponse);
-                    // Adjusted to match the actual response structure
-                    if (newContactResponse && newContactResponse.length > 0 && newContactResponse[0].details) {
-                        let newContactId = newContactResponse[0].details.id;
-                        let fullName = `${firstName} ${lastName}`;
-                        console.log(`Creating contact role entry for ID: ${newContactId}`);
-                        return createContactRoleEntry(newContactId, selectedRole, fullName);
-                    } else {
-                        throw new Error('Unexpected newContactResponse structure');
-                    }
-                })
-                .then(newCrResponse => {
-                    // Ensure this log and the subsequent logic match the actual structure of newCrResponse
-                    let newContactRoleId = newCrResponse[0].details.id; // Adjust based on actual structure
-                    associateContactRoleWithContact(newContactRoleId, newContactId); // Make sure newContactId is accessible here
-                    associateContactRoleWithDeal(newContactRoleId, entityId);
-                })
-                .catch(error => {
-                    console.error('An error occurred:', error);
-                });
+            createContactEntry(idInput, {firstName, lastName, phoneNumber}).then(function(newContactResponse) {
+              console.log('Contact creation response:', newContactResponse);
+              let newContactId = newContactResponse[0].details.id; // i think i need the real id
+              let fullName = `${firstName} ${lastName}`;
+              console.log(`Creating contact role entry for ID: ${newContactId}`);
+              createContactRoleEntry(idInput, selectedRole, fullName);// this might need to be id input
+            })
+            .then(function(newCrResponse) {
+                console.log('Contact role creation response:', newCrResponse);
+                let newContactRoleId = newCrResponse[0].details.id;
+                console.log(`Contact role entry created with ID: ${newContactRoleId}`);
+                associateContactRoleWithContact(newContactRoleId, newContactId);
+                associateContactRoleWithDeal(newContactRoleId, entityId);
+              })
+              .catch(function(error) {
+                console.error('An error occurred:', error)
+              });
           });
         }
       })
@@ -140,7 +140,7 @@ function isValidId(id) {
 }
 //--------------------------------------------------------------------------------
 function checkForExistingContact(id) {
-  let func_name = "testFindingIDs";           //production
+  let func_name = "testFindingIDs";         
   let req_data = {
     arguments: JSON.stringify({
       id: id,
@@ -189,10 +189,12 @@ function createContactRoleEntry(id, role, fullName) {
       },
       Trigger: ["workflow", "blueprint"]
   };
+  console.log("Contact role data:", contactRoleData);
   
   return ZOHO.CRM.API.insertRecord(contactRoleData)
       .then(function(response) {
-          console.log("Contact role entry created:", response.data);
+          console.log("Contact role entry created response:", response);
+          console.log("Contact role entry created response data:", response.data);
           return response.data;
       })
       .catch(function(error) {
@@ -202,27 +204,35 @@ function createContactRoleEntry(id, role, fullName) {
 }
 //--------------------------------------------------------------------------------
 function createContactEntry(id, contactInfo) {
+  console.log("entered createContactEntry function");
+  console.log("id:", id);
+  console.log("contactInfo:", contactInfo);
   var recordData = {
       Id_No: id,
       First_Name: contactInfo.firstName,
       Last_Name: contactInfo.lastName,
       Mobile: contactInfo.phoneNumber,
   };
+  console.log("recordData:", recordData);
 
   var config = {
       Entity: "Contacts",
       APIData: recordData,
       Trigger: ["workflow", "blueprint"]
   };
+  console.log("config:", config);
 
+  console.log("hello");
   return ZOHO.CRM.API.insertRecord(config)
       .then(function(response) {
           console.log("Contact created:", response.data);
           return response.data;
       })
       .catch(function(error) {
-          console.error('An error occurred:', error);
-          throw error;
+        console.log('An error occurred:', error);
+        if (error.response) {
+            console.error('API response:', error.response.data);
+        }
       });
 }
 //--------------------------------------------------------------------------------
@@ -237,17 +247,25 @@ function showAdditionalInputFields() {
 }
 //--------------------------------------------------------------------------------
 function associateContactRoleWithContact(contactRoleId, contactId) {
-  ZOHO.CRM.API.updateRecord({
-      Entity: "Contacts_Roles", 
-      RecordID: contactRoleId, // The ID of the Contact Role record you're updating
-      APIData: {
-          "Contact": contactId 
-      }
-  }).then(function(response) {
+  var config = {
+    Entity: "Contacts_Roles",
+    RecordID: contactRoleId, // try and change RecordID to RecordId or recordId or recordID or id
+    APIData: {
+      "id": contactRoleId,
+      "Contact": contactId
+    },
+    Trigger: ["workflow"] // Add any trigger if needed
+  };
+
+  return ZOHO.CRM.API.updateRecord(config)
+    .then(function(response) {
       console.log("Contact Role associated with Contact:", response.data);
-  }).catch(function(error) {
+      return response.data; // Return data if needed
+    })
+    .catch(function(error) {
       console.error("Failed to associate Contact Role with Contact:", error);
-  });
+      throw error; // Throw error to handle it outside
+    });
 }
 //--------------------------------------------------------------------------------
 function associateContactRoleWithDeal(contactRoleId, dealId) {
@@ -255,7 +273,8 @@ function associateContactRoleWithDeal(contactRoleId, dealId) {
       Entity: "Contacts_Roles", 
       RecordID: contactRoleId, // The ID of the Contact Role record you're updating
       APIData: {
-          "Deal": dealId 
+        "id": contactRoleId, // The ID of the Contact Role record you're updating
+        "Deal": dealId 
       }
   }).then(function(response) {
       console.log("Contact Role associated with Deal:", response.data);
