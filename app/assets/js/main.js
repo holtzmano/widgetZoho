@@ -217,7 +217,7 @@ function showAdditionalInputFields() {
     <div class="input-group"><label for="firstName">First Name:</label><input type="text" id="firstName" name="firstName"></div>
     <div class="input-group"><label for="lastName">Last Name:</label><input type="text" id="lastName" name="lastName"></div>
     <div class="input-group"><label for="phoneNumber">Phone Number:</label><input type="text" id="phoneNumber" name="phoneNumber"></div>
-    <button id="additionalSubmit">Submit</button>
+    <button type="button" id="additionalSubmit">Submit</button>
   `;
   $('#role-selection-form').append(fieldsHtml);
 }
