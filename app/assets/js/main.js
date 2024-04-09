@@ -60,6 +60,7 @@ $(document).ready(() => {
                 await associateContactRoleWithDeal(contactRoleId, entityId);
             } else {
                 console.log("No contact found, showing additional fields.");
+                swal("Info", "No matching ID in the system found for: " + idInput + ". Please fill in details for this new potential contact.", "info");
                 showAdditionalInputFields();
                 $('#additionalSubmit').off().on('click', async () => {
                     const firstName = $('#firstName').val().trim();
@@ -145,8 +146,11 @@ async function checkForExistingContact(id) {
           console.log("Parsed contact details:", contactDetails);
           if (contactDetails.Id_No && contactDetails.Id_No === id) {
               console.log("Matching ID found:", contactDetails.Id_No);
+              swal('Success', 'Existing contact found in the system.', 'success');
               return contactDetails;
           } else {
+              swal("Info", "No matching ID in the system found for: " + id + ". Please fill in details for this new potential contact.", "info"); // "No matching ID found for:
+              console.log("No matching ID found for:", id);
               console.log("No matching ID found for:", id);
               return null;
           }
@@ -156,6 +160,7 @@ async function checkForExistingContact(id) {
       }
   } catch (error) {
       console.error("Error executing custom function:", error);
+      swal('Error', 'An error occurred while checking for existing contact.', 'error');
       return null;
   }
 }
@@ -254,6 +259,7 @@ async function associateContactRoleWithDeal(contactRoleId, dealId) {
           }
       });
       console.log("Contact Role associated with Deal:", response.data);
+      swal('Success', 'Contact role associated with the deal and contact.', 'success');
   } catch (error) {
       console.error("Failed to associate Contact Role with Deal:", error);
       throw error;
