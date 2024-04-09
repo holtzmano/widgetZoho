@@ -73,6 +73,12 @@ $(document).ready(() => {
                         return;
                     }
 
+                    const phoneValidationResult = isValidPhoneNumber(phoneNumber);
+                    if (!phoneValidationResult.isValid) {
+                        swal('תקלה', phoneValidationResult.message, 'error');
+                        return;
+                    }
+
                     try {
                         const newContactResponse = await createContactEntry(idInput, { firstName, lastName, phoneNumber });
                         if (newContactResponse && newContactResponse.length > 0){
@@ -134,6 +140,34 @@ function isValidId(id) {
   }
   return { valid: true };
 }
+//--------------------------------------------------------------------------------
+function isValidPhoneNumber(phoneNumber) {
+    // Remove dashes for easier length and digit checks
+    const digitsOnly = phoneNumber.replace(/-/g, '');
+    
+    // Check for length issues first
+    if (digitsOnly.length < 10) {
+        return { isValid: false, message: "מספר הטלפון קצר מדי וצריך להכיל 10 ספרות." };
+    } else if (digitsOnly.length > 10) {
+        return { isValid: false, message: "מספר הטלפון ארוך מדי וצריך להכיל 10 ספרות." };
+    }
+    
+    // Check for non-digit characters
+    if (!/^\d+$/.test(digitsOnly)) {
+        return { isValid: false, message: "מספר הטלפון מכיל תווים לא חוקיים. רק ספרות ומקפים מותרים." };
+    }
+
+    // Validate the format
+    const phoneNumberRegex = /^\d{3}-?\d{3}-?\d{4}$/;
+    if (!phoneNumberRegex.test(phoneNumber)) {
+        return { isValid: false, message: "פורמט מספר טלפון לא חוקי. פורמט נכון: XXX-XXX-XXXX, מקפים הם אופציונליים." };
+    }
+
+    // If all checks pass
+    return { isValid: true, message: "מספר הטלפון תקף." };
+}
+
+
 //--------------------------------------------------------------------------------
 async function checkForExistingContact(id) {
   let func_name = "testFindingIDs";
