@@ -79,6 +79,12 @@ $(document).ready(() => {
                         return;
                     }
 
+                    const nameValidationResult = isValidName(firstName, lastName);
+                    if (!nameValidationResult.isValid) {
+                        swal('תקלה', nameValidationResult.message, 'error');
+                        return;
+                    }
+
                     try {
                         const newContactResponse = await createContactEntry(idInput, { firstName, lastName, phoneNumber });
                         if (newContactResponse && newContactResponse.length > 0){
@@ -166,8 +172,23 @@ function isValidPhoneNumber(phoneNumber) {
     // If all checks pass
     return { isValid: true, message: "מספר הטלפון תקף." };
 }
+//--------------------------------------------------------------------------------
+function isValidName(firstName, lastName) {
+    const nameRegex = /^[a-zA-Z\s]+$/; // Regular expression to match alphabetic characters only
 
+    // Check if the first name contains only alphabetic characters
+    if (!nameRegex.test(firstName)) {
+        return { isValid: false, message: "השם הפרטי מכיל תווים או מספרים לא חוקיים." };
+    }
 
+    // Check if the last name contains only alphabetic characters
+    if (!nameRegex.test(lastName)) {
+        return { isValid: false, message: "שם המשפחה מכיל תווים או מספרים לא חוקיים." };
+    }
+
+    // If both names are valid
+    return { isValid: true, message: "Names are valid." };
+}
 //--------------------------------------------------------------------------------
 async function checkForExistingContact(id) {
   let func_name = "testFindingIDs";
