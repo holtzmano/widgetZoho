@@ -305,7 +305,10 @@ async function associateContactRoleWithDeal(contactRoleId, dealId) {
           }
       });
       console.log("Contact Role associated with Deal:", response.data);
-      swal('הצלחה', 'נוצר תפקיד איש קשר הקשור לעסקה ולאיש קשר.', 'success');
+      swal('הצלחה', 'נוצר תפקיד איש קשר הקשור לעסקה ולאיש קשר.', 'success')
+      .then(() => {
+        ZOHO.CRM.UI.Popup.closeReload();
+      });
   } catch (error) {
       console.error("Failed to associate Contact Role with Deal:", error);
       throw error;
