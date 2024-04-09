@@ -60,7 +60,7 @@ $(document).ready(() => {
                 await associateContactRoleWithDeal(contactRoleId, entityId);
             } else {
                 console.log("No contact found, showing additional fields.");
-                swal("Info", "No matching ID in the system found for: " + idInput + ". Please fill in details for this new potential contact.", "info");
+                swal("לידיעתך", "לא נמצא ת״ז מזהה במערכת: " + idInput + ". אנא מלא פרטים עבור איש קשר פוטנציאלי חדש זה.", "info");
                 showAdditionalInputFields();
                 $('#additionalSubmit').off().on('click', async () => {
                     const firstName = $('#firstName').val().trim();
@@ -146,7 +146,7 @@ async function checkForExistingContact(id) {
           console.log("Parsed contact details:", contactDetails);
           if (contactDetails.Id_No && contactDetails.Id_No === id) {
               console.log("Matching ID found:", contactDetails.Id_No);
-              swal('Success', 'Existing contact found in the system.', 'success');
+              swal('הצלחה', 'איש קשר קיים נמצא במערכת.', 'success');
               return contactDetails;
           } else {
               swal("Info", "No matching ID in the system found for: " + id + ". Please fill in details for this new potential contact.", "info"); // "No matching ID found for:
@@ -219,10 +219,10 @@ async function createContactEntry(id, contactInfo) {
 //--------------------------------------------------------------------------------
 function showAdditionalInputFields() {
   var fieldsHtml = `
-    <div class="input-group"><label for="firstName">First Name:</label><input type="text" id="firstName" name="firstName"></div>
-    <div class="input-group"><label for="lastName">Last Name:</label><input type="text" id="lastName" name="lastName"></div>
-    <div class="input-group"><label for="phoneNumber">Phone Number:</label><input type="text" id="phoneNumber" name="phoneNumber"></div>
-    <button type="button" id="additionalSubmit">Submit</button>
+    <div class="input-group"><label for="firstName">שם פרטי:</label><input type="text" id="firstName" name="firstName"></div>
+    <div class="input-group"><label for="lastName">שם משפחה:</label><input type="text" id="lastName" name="lastName"></div>
+    <div class="input-group"><label for="phoneNumber">מספר טלפון:</label><input type="text" id="phoneNumber" name="phoneNumber"></div>
+    <button type="button" id="additionalSubmit">שלח</button>
   `;
   $('#role-selection-form').append(fieldsHtml);
 }
@@ -259,7 +259,7 @@ async function associateContactRoleWithDeal(contactRoleId, dealId) {
           }
       });
       console.log("Contact Role associated with Deal:", response.data);
-      swal('Success', 'Contact role associated with the deal and contact.', 'success');
+      swal('הצלחה', 'נוצר תפקיד איש קשר הקשור לעסקה ולאיש קשר.', 'success');
   } catch (error) {
       console.error("Failed to associate Contact Role with Deal:", error);
       throw error;
