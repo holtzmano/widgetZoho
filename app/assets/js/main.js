@@ -263,7 +263,7 @@ function showAdditionalInputFields() {
         <input type="text" id="lastName" name="lastName">
       </div>
       <div class="input-group">
-        <label for="phoneNumber" class="label">מספר טלפון:</label>
+        <label for="phoneNumber" class="label">נייד:</label>
         <input type="text" id="phoneNumber" name="phoneNumber">
       </div>
       <div class="button-group">
