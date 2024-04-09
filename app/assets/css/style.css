@@ -1,4 +1,95 @@
+body, html {
+  direction: rtl; /* Right-to-left direction */
+  text-align: right; /* Align text to the right */
+}
+
 #widget-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 20px;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+input[type="text"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: calc(100% - 18px);
+  margin-top: 5px;
+}
+
+input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+/* .label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+} */
+
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.button-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.button-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.button-group {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.input-group, .checkbox-group, .label {
+  direction: rtl;
+  text-align: right;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  background-color: #007bff;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.input-group input, .checkbox-group input[type="checkbox"] {
+  margin-left: 10px; /* Space between label and input for RTL */
+}
+
+.label {
+  display: block;
+}
+
+
+/* #widget-container {
   font-family: Arial, sans-serif;
   margin: 10px;
 }
@@ -32,4 +123,4 @@ th {
 
 .button {
   margin: 0 5px;
-}
+} */
