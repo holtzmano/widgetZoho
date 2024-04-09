@@ -178,7 +178,7 @@ function isValidPhoneNumber(phoneNumber) {
 }
 //--------------------------------------------------------------------------------
 function isValidName(firstName, lastName) {
-    const nameRegex = /^[a-zA-Z\s]+$/; // Regular expression to match alphabetic characters only
+    const nameRegex = /^[\u0590-\u05FFa-zA-Z\s]+$/;
 
     // Check if the first name contains only alphabetic characters
     if (!nameRegex.test(firstName)) {
@@ -278,6 +278,8 @@ async function createContactEntry(id, contactInfo) {
 }
 //--------------------------------------------------------------------------------
 function showAdditionalInputFields() {
+    $('#confirmButton, #cancelButton').addClass('hidden');
+
     var fieldsHtml = `
       <div class="input-group">
         <label for="firstName" class="label">שם פרטי:</label>
@@ -292,10 +294,21 @@ function showAdditionalInputFields() {
         <input type="text" id="phoneNumber" name="phoneNumber">
       </div>
       <div class="button-group">
-        <button type="button" class="button button-primary" id="additionalSubmit">שלח</button>
+        <button type="button" class="button button-primary" id="additionalSubmit">אישור</button>
+        <button type="button" class="button button-secondary" id="dynamicCancelButton">ביטול</button>
       </div>
     `;
     $('#role-selection-form').append(fieldsHtml);
+
+    $('#dynamicCancelButton').on('click', () => {
+        try {
+            ZOHO.CRM.UI.Popup.close().then(() => {
+                console.log("Popup closed");
+            });
+        } catch (error) {
+            console.error('An error occurred:', error);
+        }
+    });
   }
 //--------------------------------------------------------------------------------
 async function associateContactRoleWithContact(contactRoleId, contactId) {

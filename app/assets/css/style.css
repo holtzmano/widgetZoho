@@ -88,39 +88,6 @@ tr:nth-child(even) {
   display: block;
 }
 
-
-/* #widget-container {
-  font-family: Arial, sans-serif;
-  margin: 10px;
+.hidden {
+  display: none;
 }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
-
-th {
-  background-color: #f2f2f2;
-}
-
-.checkbox-group, .input-group {
-  margin-bottom: 15px;
-}
-
-.input-group label, .checkbox-group label {
-  margin-right: 10px;
-}
-
-.button-group {
-  text-align: center;
-}
-
-.button {
-  margin: 0 5px;
-} */
