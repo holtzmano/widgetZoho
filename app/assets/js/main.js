@@ -178,7 +178,7 @@ function isValidPhoneNumber(phoneNumber) {
 }
 //--------------------------------------------------------------------------------
 function isValidName(firstName, lastName) {
-    const nameRegex = /^[a-zA-Z\s]+$/; // Regular expression to match alphabetic characters only
+    const nameRegex = /^[\u0590-\u05FFa-zA-Z\s]+$/;
 
     // Check if the first name contains only alphabetic characters
     if (!nameRegex.test(firstName)) {
