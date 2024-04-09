@@ -149,13 +149,13 @@ function isValidId(id) {
 //--------------------------------------------------------------------------------
 function isValidPhoneNumber(phoneNumber) {
     // Remove dashes for easier length and digit checks
-    const digitsOnly = phoneNumber.replace(/-/g, '');
+    const digitsOnly = phoneNumber.replace(/[-+]/g, '');
     
     // Check for length issues first
     if (digitsOnly.length < 10) {
-        return { isValid: false, message: "מספר הטלפון קצר מדי וצריך להכיל 10 ספרות." };
-    } else if (digitsOnly.length > 10) {
-        return { isValid: false, message: "מספר הטלפון ארוך מדי וצריך להכיל 10 ספרות." };
+        return { isValid: false, message: "מספר הטלפון קצר מדי וצריך להכיל בין 10 ל-13 ספרות." };
+    } else if (digitsOnly.length > 13) {
+        return { isValid: false, message: "מספר הטלפון ארוך מדי וצריך להכיל בין 10 ל-13 ספרות." };
     }
     
     // Check for non-digit characters
@@ -163,10 +163,14 @@ function isValidPhoneNumber(phoneNumber) {
         return { isValid: false, message: "מספר הטלפון מכיל תווים לא חוקיים. רק ספרות ומקפים מותרים." };
     }
 
+    if (!/^\d+$/.test(digitsOnly)) {
+        return { isValid: false, message: "מספר הטלפון מכיל תווים לא חוקיים. רק ספרות, מקפים ו+ מותרים." };
+    }
+
     // Validate the format
-    const phoneNumberRegex = /^\d{3}-?\d{3}-?\d{4}$/;
+    const phoneNumberRegex = /^(\+\d{1,3})?(\d{3}-?\d{3}-?\d{4})$/;
     if (!phoneNumberRegex.test(phoneNumber)) {
-        return { isValid: false, message: "פורמט מספר טלפון לא חוקי. פורמט נכון: XXX-XXX-XXXX, מקפים הם אופציונליים." };
+        return { isValid: false, message: "פורמט מספר טלפון לא חוקי. פורמט נכון: [+קידומת] XXX-XXX-XXXX, מקפים הם אופציונליים." };
     }
 
     // If all checks pass
