@@ -55,7 +55,7 @@ $(document).ready(() => {
                 console.log("idInput:", idInput); // this is the id of the contact
                 let passportCheckbox = $('#passportCheckbox').is(':checked');
                 console.log("passportCheckbox:", passportCheckbox);
-                let mobile = $('#phoneNumber').val().trim();
+                let mobile = contact.Mobile;
                 console.log("mobile:", mobile);
                 const crResponse = await createContactRoleEntry(idInput, selectedRole, contact.Full_Name, passportCheckbox, mobile);
                 const contactRoleId = crResponse[0].details.id;
