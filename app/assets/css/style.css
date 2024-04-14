@@ -24,12 +24,6 @@ input[type="checkbox"] {
   margin-right: 5px;
 }
 
-/* .label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-} */
-
 .button {
   padding: 10px 20px;
   border: none;
@@ -49,7 +43,7 @@ input[type="checkbox"] {
 }
 
 .button-group {
-  margin-top: 20px;
+  margin-top: 30px;
   display: flex;
   justify-content: center;
 }
@@ -57,6 +51,7 @@ input[type="checkbox"] {
 .input-group, .checkbox-group, .label {
   direction: rtl;
   text-align: right;
+  margin-bottom: 30px;
 }
 
 table {
@@ -68,7 +63,7 @@ table {
 th, td {
   border: 1px solid #ddd;
   text-align: left;
-  padding: 8px;
+  padding: 12px;
 }
 
 th {
@@ -81,11 +76,13 @@ tr:nth-child(even) {
 }
 
 .input-group input, .checkbox-group input[type="checkbox"] {
-  margin-left: 10px; /* Space between label and input for RTL */
+  margin-left: 20px; /* Space between label and input for RTL */
+  padding: 10px 12px;
 }
 
 .label {
   display: block;
+  margin-bottom: 10px; 
 }
 
 .hidden {
