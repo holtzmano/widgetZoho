@@ -53,7 +53,9 @@ $(document).ready(() => {
             if (contact) {
                 console.log("Existing contact found:", contact);
                 console.log("idInput:", idInput); // this is the id of the contact
-                const crResponse = await createContactRoleEntry(idInput, selectedRole, contact.Full_Name);
+                let passportCheckbox = $('#passportCheckbox').is(':checked');
+                console.log("passportCheckbox:", passportCheckbox);
+                const crResponse = await createContactRoleEntry(idInput, selectedRole, contact.Full_Name, passportCheckbox);
                 const contactRoleId = crResponse[0].details.id;
                 console.log(`Contact role entry created with ID: ${contactRoleId}`);
 
@@ -91,8 +93,9 @@ $(document).ready(() => {
                           console.log("newContactResponse:", newContactResponse);
                           const newContactId = newContactResponse[0].details.id;
                           console.log(`New contact created with ID: ${newContactId}`);
-
-                          const newCrResponse = await createContactRoleEntry(idInput, selectedRole, `${firstName} ${lastName}`);
+                          let passportCheckbox = $('#passportCheckbox').is(':checked');
+                          console.log("passportCheckbox:", passportCheckbox);
+                          const newCrResponse = await createContactRoleEntry(idInput, selectedRole, `${firstName} ${lastName}`, passportCheckbox);
                           console.log('Contact role creation response:', newCrResponse);
                           if (newCrResponse && newCrResponse.length > 0){
                             const newContactRoleId = newCrResponse[0].details.id;
@@ -225,8 +228,10 @@ async function checkForExistingContact(id) {
   }
 }
 //--------------------------------------------------------------------------------
-async function createContactRoleEntry(id, role, fullName) {
+async function createContactRoleEntry(id, role, fullName, passportCheckbox) {
   console.log("entered createContactRoleEntry function");
+//   let passportCheckbox = $('#passportCheckbox').is(':checked');
+  console.log("passportCheckbox:", passportCheckbox);
   if (role === "tenant") {
       role = "דייר פוטנציאלי";
   } else if (role === "guarantor") {
@@ -238,6 +243,7 @@ async function createContactRoleEntry(id, role, fullName) {
           ID_NO: id,
           Role: role,
           full_name: fullName,
+          Passport: passportCheckbox
       },
       Trigger: ["workflow", "blueprint"]
   };
@@ -258,6 +264,7 @@ async function createContactEntry(id, contactInfo) {
       First_Name: contactInfo.firstName,
       Last_Name: contactInfo.lastName,
       Mobile: contactInfo.phoneNumber,
+    //   Passport: $('#passportCheckbox').is(':checked') ? true : false
   };
   var config = {
       Entity: "Contacts",
