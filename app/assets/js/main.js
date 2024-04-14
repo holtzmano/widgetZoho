@@ -36,13 +36,23 @@ $(document).ready(() => {
     $('#confirmButton').on('click', async () => {
         const selectedRole = $('input[type="checkbox"][name="role"]:checked').val();
         const idInput = $('#idInput').val().trim();
+        const passportCheckbox = $('#passportCheckbox').is(':checked');
 
         if (!selectedRole) {
             swal('Error', 'אנא בחר תפקיד.', 'error');
             return;
         }
 
-        const idValidationResult = isValidId(idInput);
+        let idValidationResult;
+        if (passportCheckbox) {
+            console.log("Passport checkbox is checked");
+            idValidationResult = isValidPassportId(idInput);
+        } else {
+            console.log("Passport checkbox is not checked");
+            idValidationResult = isValidId(idInput);
+        }
+
+        //const idValidationResult = isValidId(idInput);
         if (!idInput || !idValidationResult.valid) {
             swal('Error', idValidationResult.message || 'Please enter an ID.', 'error');
             return;
@@ -156,6 +166,32 @@ function isValidId(id) {
   return { valid: true };
 }
 //--------------------------------------------------------------------------------
+function isValidPassportId(id) {
+    id = String(id).trim();  // Ensure input is treated as a string and whitespace trimmed
+    
+    // Check length constraints
+    if (id.length < 1 || id.length > 20) {
+        return {
+            valid: false,
+            message: 'מזהה דרכון חייב להיות באורך של בין 1 ל-20 תווים.'
+        };
+    }
+
+    // Check character constraints: only alphanumeric characters are allowed
+    if (!/^[a-zA-Z0-9]+$/.test(id)) {
+        return {
+            valid: false,
+            message: 'מזהה דרכון חייב להכיל רק אותיות ומספרים.'
+        };
+    }
+
+    // If all checks are passed
+    return {
+        valid: true,
+        message: 'Passport ID is valid.'
+    };
+}
+  //--------------------------------------------------------------------------------
 function isValidPhoneNumber(phoneNumber) {
     // Remove dashes for easier length and digit checks
     const digitsOnly = phoneNumber.replace(/[-+]/g, '');
