@@ -55,7 +55,9 @@ $(document).ready(() => {
                 console.log("idInput:", idInput); // this is the id of the contact
                 let passportCheckbox = $('#passportCheckbox').is(':checked');
                 console.log("passportCheckbox:", passportCheckbox);
-                const crResponse = await createContactRoleEntry(idInput, selectedRole, contact.Full_Name, passportCheckbox);
+                let mobile = $('#phoneNumber').val().trim();
+                console.log("mobile:", mobile);
+                const crResponse = await createContactRoleEntry(idInput, selectedRole, contact.Full_Name, passportCheckbox, mobile);
                 const contactRoleId = crResponse[0].details.id;
                 console.log(`Contact role entry created with ID: ${contactRoleId}`);
 
@@ -88,14 +90,18 @@ $(document).ready(() => {
                     }
 
                     try {
-                        const newContactResponse = await createContactEntry(idInput, { firstName, lastName, phoneNumber });
+                        let passportCheckbox = $('#passportCheckbox').is(':checked');
+                        console.log("passportCheckbox before entering create contact function:", passportCheckbox);
+                        const newContactResponse = await createContactEntry(idInput, { firstName, lastName, phoneNumber }, passportCheckbox);
                         if (newContactResponse && newContactResponse.length > 0){
                           console.log("newContactResponse:", newContactResponse);
                           const newContactId = newContactResponse[0].details.id;
                           console.log(`New contact created with ID: ${newContactId}`);
                           let passportCheckbox = $('#passportCheckbox').is(':checked');
                           console.log("passportCheckbox:", passportCheckbox);
-                          const newCrResponse = await createContactRoleEntry(idInput, selectedRole, `${firstName} ${lastName}`, passportCheckbox);
+                          let mobile = $('#phoneNumber').val().trim();
+                          console.log("mobile:", mobile);
+                          const newCrResponse = await createContactRoleEntry(idInput, selectedRole, `${firstName} ${lastName}`, passportCheckbox, mobile);
                           console.log('Contact role creation response:', newCrResponse);
                           if (newCrResponse && newCrResponse.length > 0){
                             const newContactRoleId = newCrResponse[0].details.id;
@@ -228,10 +234,11 @@ async function checkForExistingContact(id) {
   }
 }
 //--------------------------------------------------------------------------------
-async function createContactRoleEntry(id, role, fullName, passportCheckbox) {
+async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobile) {
   console.log("entered createContactRoleEntry function");
 //   let passportCheckbox = $('#passportCheckbox').is(':checked');
   console.log("passportCheckbox:", passportCheckbox);
+  console.log("mobile:", mobile);
   if (role === "tenant") {
       role = "דייר פוטנציאלי";
   } else if (role === "guarantor") {
@@ -243,7 +250,8 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox) {
           ID_NO: id,
           Role: role,
           full_name: fullName,
-          Passport: passportCheckbox
+          Passport: passportCheckbox,
+          Mobile: mobile
       },
       Trigger: ["workflow", "blueprint"]
   };
@@ -257,13 +265,15 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox) {
   }
 }
 //--------------------------------------------------------------------------------
-async function createContactEntry(id, contactInfo) {
+async function createContactEntry(id, contactInfo, passportCheckbox) {
   console.log("entered createContactEntry function");
+  console.log("passportCheckbox after entering the function:", passportCheckbox);
   var recordData = {
       Id_No: id,
       First_Name: contactInfo.firstName,
       Last_Name: contactInfo.lastName,
       Mobile: contactInfo.phoneNumber,
+      Passport: passportCheckbox
     //   Passport: $('#passportCheckbox').is(':checked') ? true : false
   };
   var config = {
