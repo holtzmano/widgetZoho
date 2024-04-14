@@ -59,7 +59,9 @@ $(document).ready(() => {
         }
 
         try {
-            const contact = await checkForExistingContact(idInput);
+            let contact;
+            contact = await checkForExistingContact(idInput);
+
             if (contact) {
                 console.log("Existing contact found:", contact);
                 console.log("idInput:", idInput); // this is the id of the contact
@@ -241,6 +243,7 @@ function isValidName(firstName, lastName) {
 //--------------------------------------------------------------------------------
 async function checkForExistingContact(id) {
   let func_name = "testFindingIDs";
+  //id = id.toString();
   let req_data = {
       arguments: JSON.stringify({ id: id }),
   };
@@ -406,3 +409,17 @@ async function associateContactRoleWithDeal(contactRoleId, dealId) {
   }
 }
 
+
+
+/*
+lowercaseId = id.toLowerCase();
+uppercaseId = id.toUpperCase();
+lowerMatchingId = zoho.crm.searchRecords("Contacts","(Id_No:equals:" + lowercaseId + ")");
+if ( lowerMatchingId == null ) 
+{
+	upperMatchingId = zoho.crm.searchRecords("Contacts","(Id_No:equals:" + uppercaseId + ")");
+}
+info matchingId.size();
+info matchingId;
+return matchingId;
+*/
