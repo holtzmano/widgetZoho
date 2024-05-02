@@ -5,7 +5,7 @@ ZOHO.embeddedApp.on("PageLoad", async (data) => {
     entityId = data.EntityId;
     const entityName = data.Entity;
 
-    ZOHO.CRM.UI.Resize({ height: "600", width: "800" });
+    ZOHO.CRM.UI.Resize({ height: "50%", width: "20%" });
 
     try {
         const entityData = await ZOHO.CRM.API.getRecord({
