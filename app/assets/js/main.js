@@ -146,6 +146,14 @@ $(document).ready(() => {
             console.error('An error occurred:', error);
         }
     });
+
+    $(document).on('keypress', '#idInput', function (e) {
+        if (e.which === 13) {
+            console.log("Enter key pressed");
+            e.preventDefault(); // Enter key pressed
+            $('#confirmButton').click();
+        }
+    });
 });
 
 //--------------------------------------------------------------------------------
