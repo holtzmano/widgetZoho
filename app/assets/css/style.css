@@ -1,27 +1,34 @@
 body, html {
-  direction: rtl; /* Right-to-left direction */
+  font-family: 'Roboto', sans-serif; /* Consistent font throughout */
+  direction: rtl; /* Right-to-left direction for Hebrew */
   text-align: right; /* Align text to the right */
+  background-color: #f4f4f8; /* Softer background color */
+  color: #333; /* Darker text for better readability */
+  font-size: 16px; /* Standard font size */
 }
 
 #widget-container {
-  font-family: 'Roboto', sans-serif; /* Roboto font */
-  margin: 20px;
-  background-color: #f9f9f9;
+  margin: auto; /* Center align the widget */
+  background-color: #fff; /* White background for the container */
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+  max-width: 400px; /* Maximum width of the container */
+}
+
+input[type="text"], input[type="checkbox"] {
+  padding: 8px;
+  border: 1px solid #ccc; /* Standard border color */
+  border-radius: 4px; /* Rounded borders for inputs */
+  margin-top: 5px; /* Spacing above the inputs */
 }
 
 input[type="text"] {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: calc(100% - 18px);
-  margin-top: 5px;
+  width: calc(100% - 16px); /* Responsive width calculation */
 }
 
 input[type="checkbox"] {
-  margin-right: 5px;
+  margin-right: 10px; /* Space between checkbox and label */
 }
 
 .button {
@@ -30,28 +37,37 @@ input[type="checkbox"] {
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
+  font-weight: bold; /* Bolder font for button text */
 }
 
 .button-primary {
-  background-color: #007bff;
+  background-color: #007bff; /* Primary button color */
   color: white;
 }
 
 .button-secondary {
-  background-color: #6c757d;
+  background-color: #6c757d; /* Secondary button color */
   color: white;
 }
 
-.button-group {
-  margin-top: 30px;
-  display: flex;
-  justify-content: center;
+.button:hover {
+  opacity: 0.8; /* Hover effect for buttons */
 }
 
-.input-group, .checkbox-group, .label {
-  direction: rtl;
-  text-align: right;
-  margin-bottom: 30px;
+.button-group {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center; /* Center align the buttons */
+}
+
+.input-group, .checkbox-group {
+  margin-bottom: 20px; /* Increased bottom margin for groups */
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px; /* Reduced margin for a tighter look */
+  font-weight: bold; /* Bold labels for better visibility */
 }
 
 table {
@@ -62,7 +78,6 @@ table {
 
 th, td {
   border: 1px solid #ddd;
-  text-align: left;
   padding: 12px;
 }
 
@@ -75,16 +90,6 @@ tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 
-.input-group input, .checkbox-group input[type="checkbox"] {
-  margin-left: 20px; /* Space between label and input for RTL */
-  padding: 10px 12px;
-}
-
-.label {
-  display: block;
-  margin-bottom: 10px; 
-}
-
 .hidden {
-  display: none;
+  display: none; /* Maintain hidden for necessary items */
 }
