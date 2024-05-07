@@ -33,108 +33,154 @@ $(document).ready(() => {
         $('input[type="checkbox"][name="role"]').not(this).prop('checked', false);
     });
 
+    let processing = false; // Guard variable
+
     $('#confirmButton').on('click', async () => {
-        const selectedRole = $('input[type="checkbox"][name="role"]:checked').val();
-        const idInput = $('#idInput').val().trim();
-        const passportCheckbox = $('#passportCheckbox').is(':checked');
-
-        if (!selectedRole) {
-            swal('Error', 'אנא בחר תפקיד.', 'error');
-            return;
+        if (processing) {
+            console.log('Action already in progress. Ignoring subsequent click.');
+            return; // Ignore this click if already processing
         }
+        processing = true; // Lock further actions
 
-        let idValidationResult;
-        if (passportCheckbox) {
-            console.log("Passport checkbox is checked");
-            idValidationResult = isValidPassportId(idInput);
-        } else {
-            console.log("Passport checkbox is not checked");
-            idValidationResult = isValidId(idInput);
-        }
-
-        //const idValidationResult = isValidId(idInput);
-        if (!idInput || !idValidationResult.valid) {
-            swal('Error', idValidationResult.message || 'Please enter an ID.', 'error');
-            return;
-        }
+        const $confirmButton = $('#confirmButton');
+        console.log('Before disabling, is confirmButton disabled?', $confirmButton.prop('disabled'));
+        $confirmButton.prop('disabled', true);
+        console.log('After disabling, is confirmButton disabled?', $confirmButton.prop('disabled'));
 
         try {
-            let contact;
-            contact = await checkForExistingContact(idInput);
+            const selectedRole = $('input[type="checkbox"][name="role"]:checked').val();
+            const idInput = $('#idInput').val().trim();
+            const passportCheckbox = $('#passportCheckbox').is(':checked');
 
-            if (contact) {
-                console.log("Existing contact found:", contact);
-                console.log("idInput:", idInput); // this is the id of the contact
-                let passportCheckbox = $('#passportCheckbox').is(':checked');
-                console.log("passportCheckbox:", passportCheckbox);
-                let mobile = contact.Mobile;
-                console.log("mobile:", mobile);
-                const crResponse = await createContactRoleEntry(idInput, selectedRole, contact.Full_Name, passportCheckbox, mobile);
-                const contactRoleId = crResponse[0].details.id;
-                console.log(`Contact role entry created with ID: ${contactRoleId}`);
-
-                await associateContactRoleWithContact(contactRoleId, contact.id);
-                await associateContactRoleWithDeal(contactRoleId, entityId);
-            } else {
-                console.log("No contact found, showing additional fields.");
-                swal("לידיעתך", "לא נמצא ת״ז מזהה במערכת: " + idInput + ". אנא מלא פרטים עבור איש קשר פוטנציאלי חדש זה.", "info");
-                showAdditionalInputFields();
-                $('#additionalSubmit').off().on('click', async () => {
-                    const firstName = $('#firstName').val().trim();
-                    const lastName = $('#lastName').val().trim();
-                    const phoneNumber = $('#phoneNumber').val().trim();
-
-                    if (!firstName || !lastName || !phoneNumber) {
-                        swal('תקלה', 'אנא ספק את פרטי הקשר המלאים.', 'error');
-                        return;
-                    }
-
-                    const phoneValidationResult = isValidPhoneNumber(phoneNumber);
-                    if (!phoneValidationResult.isValid) {
-                        swal('תקלה', phoneValidationResult.message, 'error');
-                        return;
-                    }
-
-                    const nameValidationResult = isValidName(firstName, lastName);
-                    if (!nameValidationResult.isValid) {
-                        swal('תקלה', nameValidationResult.message, 'error');
-                        return;
-                    }
-
-                    try {
-                        let passportCheckbox = $('#passportCheckbox').is(':checked');
-                        console.log("passportCheckbox before entering create contact function:", passportCheckbox);
-                        const newContactResponse = await createContactEntry(idInput, { firstName, lastName, phoneNumber }, passportCheckbox);
-                        if (newContactResponse && newContactResponse.length > 0) {
-                            console.log("newContactResponse:", newContactResponse);
-                            const newContactId = newContactResponse[0].details.id;
-                            console.log(`New contact created with ID: ${newContactId}`);
-                            let passportCheckbox = $('#passportCheckbox').is(':checked');
-                            console.log("passportCheckbox:", passportCheckbox);
-                            let mobile = $('#phoneNumber').val().trim();
-                            console.log("mobile:", mobile);
-                            const newCrResponse = await createContactRoleEntry(idInput, selectedRole, `${firstName} ${lastName}`, passportCheckbox, mobile);
-                            console.log('Contact role creation response:', newCrResponse);
-                            if (newCrResponse && newCrResponse.length > 0) {
-                                const newContactRoleId = newCrResponse[0].details.id;
-                                console.log(`Contact role entry created with ID: ${newContactRoleId}`);
-
-                                await associateContactRoleWithContact(newContactRoleId, newContactId);
-                                await associateContactRoleWithDeal(newContactRoleId, entityId);
-                            } else {
-                                console.error("Failed to create contact role entry");
-                            }
-                        } else {
-                            console.error("Failed to create contact");
-                        }
-                    } catch (error) {
-                        console.log('An error occurred:', error);
-                        swal('Error', 'An error occurred while creating the contact.', 'error');
-                    }
-                });
+            if (!selectedRole) {
+                swal('Error', 'אנא בחר תפקיד.', 'error');
+                return;
             }
+
+            let idValidationResult;
+            if (passportCheckbox) {
+                console.log("Passport checkbox is checked");
+                idValidationResult = isValidPassportId(idInput);
+            } else {
+                console.log("Passport checkbox is not checked");
+                idValidationResult = isValidId(idInput);
+            }
+
+            //const idValidationResult = isValidId(idInput);
+            if (!idInput || !idValidationResult.valid) {
+                swal('Error', idValidationResult.message || 'Please enter an ID.', 'error');
+                return;
+            }
+
+            try {
+                let contact;
+                contact = await checkForExistingContact(idInput);
+
+                if (contact) {
+                    console.log("Existing contact found:", contact);
+                    console.log("idInput:", idInput); // this is the id of the contact
+                    let passportCheckbox = $('#passportCheckbox').is(':checked');
+                    console.log("passportCheckbox:", passportCheckbox);
+                    let mobile = contact.Mobile;
+                    console.log("mobile:", mobile);
+                    const crResponse = await createContactRoleEntry(idInput, selectedRole, contact.Full_Name, passportCheckbox, mobile);
+                    const contactRoleId = crResponse[0].details.id;
+                    console.log(`Contact role entry created with ID: ${contactRoleId}`);
+
+                    await associateContactRoleWithContact(contactRoleId, contact.id);
+                    await associateContactRoleWithDeal(contactRoleId, entityId);
+                } else {
+                    console.log("No contact found, showing additional fields.");
+                    swal("לידיעתך", "לא נמצא ת״ז מזהה במערכת: " + idInput + ". אנא מלא פרטים עבור איש קשר פוטנציאלי חדש זה.", "info");
+                    showAdditionalInputFields();
+
+                    // Guard variable for preventing duplicate submissions
+                    let processingContactCreation = false;
+
+                    $('#additionalSubmit').off().on('click', async () => {
+                        if (processingContactCreation) {
+                            console.log('Action already in progress. Ignoring subsequent click.');
+                            return; // Ignore this click if already processing
+                        }
+
+                        processingContactCreation = true; // Lock further actions
+
+                        const $additionalSubmitButton = $('#additionalSubmit');
+                        $additionalSubmitButton.prop('disabled', true);
+
+                        try {
+                            const firstName = $('#firstName').val().trim();
+                            const lastName = $('#lastName').val().trim();
+                            const phoneNumber = $('#phoneNumber').val().trim();
+
+                            if (!firstName || !lastName || !phoneNumber) {
+                                swal('תקלה', 'אנא ספק את פרטי הקשר המלאים.', 'error');
+                                return;
+                            }
+
+                            const phoneValidationResult = isValidPhoneNumber(phoneNumber);
+                            if (!phoneValidationResult.isValid) {
+                                swal('תקלה', phoneValidationResult.message, 'error');
+                                return;
+                            }
+
+                            const nameValidationResult = isValidName(firstName, lastName);
+                            if (!nameValidationResult.isValid) {
+                                swal('תקלה', nameValidationResult.message, 'error');
+                                return;
+                            }
+
+                            try {
+                                let passportCheckbox = $('#passportCheckbox').is(':checked');
+                                console.log("passportCheckbox before entering create contact function:", passportCheckbox);
+                                const newContactResponse = await createContactEntry(idInput, { firstName, lastName, phoneNumber }, passportCheckbox);
+                                
+                                if (newContactResponse && newContactResponse.length > 0) {
+                                    console.log("newContactResponse:", newContactResponse);
+                                    const newContactId = newContactResponse[0].details.id;
+                                    console.log(`New contact created with ID: ${newContactId}`);
+                                    let passportCheckbox = $('#passportCheckbox').is(':checked');
+                                    console.log("passportCheckbox:", passportCheckbox);
+                                    let mobile = $('#phoneNumber').val().trim();
+                                    console.log("mobile:", mobile);
+                                    const newCrResponse = await createContactRoleEntry(idInput, selectedRole, `${firstName} ${lastName}`, passportCheckbox, mobile);
+                                    console.log('Contact role creation response:', newCrResponse);
+                                    if (newCrResponse && newCrResponse.length > 0) {
+                                        const newContactRoleId = newCrResponse[0].details.id;
+                                        console.log(`Contact role entry created with ID: ${newContactRoleId}`);
+
+                                        await associateContactRoleWithContact(newContactRoleId, newContactId);
+                                        await associateContactRoleWithDeal(newContactRoleId, entityId);
+                                    } else {
+                                        console.error("Failed to create contact role entry");
+                                    }
+                                } else {
+                                    console.error("Failed to create contact");
+                                }
+                            } catch (error) {
+                                console.log('An error occurred:', error);
+                                swal('Error', 'An error occurred while creating the contact.', 'error');
+                            }
+                        } catch (error) {
+                            console.error('An error occurred:', error);
+                        } finally {
+                            console.log('Re-enabling additionalSubmitButton.');
+                            $additionalSubmitButton.prop('disabled', false);
+                            processingContactCreation = false; // Release the lock
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('An error occurred:', error);
+            }
+
         } catch (error) {
             console.error('An error occurred:', error);
+        } finally {
+            // Re-enable the confirm button after the operation completes
+            console.log('Re-enabling confirmButton.');
+            $confirmButton.prop('disabled', false);
+            processing = false; // Release the lock
         }
     });
 
@@ -328,10 +374,6 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobi
     }
 }
 //--------------------------------------------------------------------------------//
-//
-/*
-hello
-*/
 async function createContactEntry(id, contactInfo, passportCheckbox) {
     console.log("entered createContactEntry function");
     console.log("passportCheckbox after entering the function:", passportCheckbox);
