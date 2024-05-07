@@ -287,9 +287,8 @@ async function checkForExistingContact(id) {
     }
 }
 //--------------------------------------------------------------------------------
-async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobile) {
+async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobile, contactId) {
     console.log("entered createContactRoleEntry function");
-    //   let passportCheckbox = $('#passportCheckbox').is(':checked');
     console.log("passportCheckbox:", passportCheckbox);
     console.log("mobile:", mobile);
     if (role === "tenant") {
@@ -297,6 +296,16 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobi
     } else if (role === "guarantor") {
         role = "ערב פוטנציאלי";
     }
+
+    let contactData = await ZOHO.CRM.API.getRecord({
+        Entity: "Contacts",
+        RecordID: contactId
+    });
+
+    console.log("Contact data: ", contactData.data);
+    let folder = contactData.data[0].folder;
+    console.log("Folder: ", folder);
+
     var contactRoleData = {
         Entity: 'Contacts_Roles',
         APIData: {
@@ -304,7 +313,8 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobi
             Role: role,
             full_name: fullName,
             Passport: passportCheckbox,
-            Mobile: mobile
+            Mobile: mobile,
+            Folder: folder
         },
         Trigger: ["workflow", "blueprint"]
     };
@@ -317,7 +327,11 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobi
         throw error;
     }
 }
-//--------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------//
+//
+/*
+hello
+*/
 async function createContactEntry(id, contactInfo, passportCheckbox) {
     console.log("entered createContactEntry function");
     console.log("passportCheckbox after entering the function:", passportCheckbox);
