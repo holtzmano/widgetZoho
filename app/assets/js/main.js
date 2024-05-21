@@ -133,6 +133,9 @@ $(document).ready(() => {
                             try {
                                 let passportCheckbox = $('#passportCheckbox').is(':checked');
                                 console.log("passportCheckbox before entering create contact function:", passportCheckbox);
+                                const fullName = combineFullName(firstName, lastName);
+                                console.log("Full Name:", fullName);
+
                                 const newContactResponse = await createContactEntry(idInput, { firstName, lastName, phoneNumber }, passportCheckbox);
                                 
                                 if (newContactResponse && newContactResponse.length > 0) {
@@ -143,7 +146,7 @@ $(document).ready(() => {
                                     console.log("passportCheckbox:", passportCheckbox);
                                     let mobile = $('#phoneNumber').val().trim();
                                     console.log("mobile:", mobile);
-                                    const newCrResponse = await createContactRoleEntry(idInput, selectedRole, `${firstName} ${lastName}`, passportCheckbox, mobile);
+                                    const newCrResponse = await createContactRoleEntry(idInput, selectedRole, fullName, passportCheckbox, mobile);
                                     console.log('Contact role creation response:', newCrResponse);
                                     if (newCrResponse && newCrResponse.length > 0) {
                                         const newContactRoleId = newCrResponse[0].details.id;
@@ -337,6 +340,14 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobi
     console.log("entered createContactRoleEntry function");
     console.log("passportCheckbox:", passportCheckbox);
     console.log("mobile:", mobile);
+    console.log("Full Name before validation:", fullName);
+
+    // Ensure the full name includes a space between first and last name
+    if (!fullName.includes(" ")) {
+        fullName = fullName.replace(/([a-z])([A-Z])/g, '$1 $2'); // Adds space between camelCase names
+        console.log("Full Name after adding space:", fullName);
+    }
+
     if (role === "tenant") {
         role = "דייר פוטנציאלי";
     } else if (role === "guarantor") {
@@ -352,6 +363,18 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobi
     let folder = contactData.data[0].folder;
     console.log("Folder: ", folder);
 
+    // Create a log entry
+    const logDetails = `
+        ID: ${id}
+        Role: ${role}
+        Full Name: ${fullName}
+        Passport Checkbox: ${passportCheckbox}
+        Mobile: ${mobile}
+        Folder: ${folder}
+        Contact ID: ${contactId}
+        Timestamp: ${new Date().toISOString()}
+    `;
+
     var contactRoleData = {
         Entity: 'Contacts_Roles',
         APIData: {
@@ -360,10 +383,12 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobi
             full_name: fullName,
             Passport: passportCheckbox,
             Mobile: mobile,
-            Folder: folder
+            Folder: folder,
+            Log_Details: logDetails
         },
         Trigger: ["workflow", "blueprint"]
     };
+    console.log("logDetails:", logDetails);
     try {
         let response = await ZOHO.CRM.API.insertRecord(contactRoleData);
         console.log("Contact role entry created response:", response);
@@ -385,6 +410,11 @@ async function createContactEntry(id, contactInfo, passportCheckbox) {
         Passport: passportCheckbox
         //   Passport: $('#passportCheckbox').is(':checked') ? true : false
     };
+
+    // Ensure the full name is properly formatted
+    recordData.Full_Name = `${contactInfo.firstName} ${contactInfo.lastName}`;
+    console.log("Full Name:", recordData.Full_Name);
+
     var config = {
         Entity: "Contacts",
         APIData: recordData,
@@ -401,6 +431,14 @@ async function createContactEntry(id, contactInfo, passportCheckbox) {
         }
         throw error;
     }
+}
+//--------------------------------------------------------------------------------
+// Additional function to ensure first and last names are combined correctly
+function combineFullName(firstName, lastName) {
+    if (!firstName || !lastName) {
+        throw new Error("First name or last name is missing");
+    }
+    return `${firstName.trim()} ${lastName.trim()}`;
 }
 //--------------------------------------------------------------------------------
 function showAdditionalInputFields() {
@@ -478,18 +516,3 @@ async function associateContactRoleWithDeal(contactRoleId, dealId) {
         throw error;
     }
 }
-
-
-
-/*
-lowercaseId = id.toLowerCase();
-uppercaseId = id.toUpperCase();
-lowerMatchingId = zoho.crm.searchRecords("Contacts","(Id_No:equals:" + lowercaseId + ")");
-if ( lowerMatchingId == null ) 
-{
-    upperMatchingId = zoho.crm.searchRecords("Contacts","(Id_No:equals:" + uppercaseId + ")");
-}
-info matchingId.size();
-info matchingId;
-return matchingId;
-*/
