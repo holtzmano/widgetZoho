@@ -67,6 +67,7 @@ $(document).ready(() => {
                 idValidationResult = isValidId(idInput);
             }
 
+            //const idValidationResult = isValidId(idInput);
             if (!idInput || !idValidationResult.valid) {
                 swal('Error', idValidationResult.message || 'Please enter an ID.', 'error');
                 return;
