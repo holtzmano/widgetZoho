@@ -51,6 +51,7 @@ $(document).ready(() => {
             const selectedRole = $('input[type="checkbox"][name="role"]:checked').val();
             const idInput = $('#idInput').val().trim();
             const passportCheckbox = $('#passportCheckbox').is(':checked');
+            const idFile = $('#idFile')[0].files[0];
 
             if (!selectedRole) {
                 swal('Error', 'אנא בחר תפקיד.', 'error');
@@ -66,7 +67,6 @@ $(document).ready(() => {
                 idValidationResult = isValidId(idInput);
             }
 
-            //const idValidationResult = isValidId(idInput);
             if (!idInput || !idValidationResult.valid) {
                 swal('Error', idValidationResult.message || 'Please enter an ID.', 'error');
                 return;

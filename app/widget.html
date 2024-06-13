@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -15,39 +16,41 @@
   <script src="assets/js/sweetalert.min.js"></script>
   <title>Deal Contacts Widget</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
-
-  <style>
-  </style>
 </head>
+
 <body>
   <div id="widget-container">
     <h2>הוספת פוטנציאלי</h2>
     <form id="role-selection-form">
       <div class="checkbox-group">
-          <input type="checkbox" id="tenantCheckbox" name="role" value="tenant">
-          <label for="tenantCheckbox">דייר</label>
+        <input type="checkbox" id="tenantCheckbox" name="role" value="tenant">
+        <label for="tenantCheckbox">דייר</label>
       </div>
       <div class="checkbox-group">
-          <input type="checkbox" id="guarantorCheckbox" name="role" value="guarantor">
-          <label for="guarantorCheckbox">ערב</label>
+        <input type="checkbox" id="guarantorCheckbox" name="role" value="guarantor">
+        <label for="guarantorCheckbox">ערב</label>
       </div>
       <div class="input-group">
         <div>
-            <label for="passportCheckbox">דרכנואי?</label>
-            <input type="checkbox" id="passportCheckbox" name="passportCheckbox">
+          <label for="passportCheckbox">דרכנואי?</label>
+          <input type="checkbox" id="passportCheckbox" name="passportCheckbox">
         </div>
         <div>
-            <label for="idInput">תעודת זהות:</label>
-            <input type="text" id="idInput" name="idInput">
+          <label for="idInput">תעודת זהות:</label>
+          <input type="text" id="idInput" name="idInput">
         </div>
-    </div>
+        <div class="input-group">
+          <label for="idFile">העלאת קובץ</label>
+          <input type="file" id="idFile" name="idFile" accept="image/*">
+        </div>
+      </div>
       <div class="button-group">
-          <button type="button" class="button button-primary" id="confirmButton">אישור</button>
-          <button type="button" class="button button-secondary" id="cancelButton">ביטול</button>
+        <button type="button" class="button button-primary" id="confirmButton">אישור</button>
+        <button type="button" class="button button-secondary" id="cancelButton">ביטול</button>
       </div>
     </form>
   </div>
-   
+
 </body>
+
 </html>
