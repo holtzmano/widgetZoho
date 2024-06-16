@@ -1,5 +1,15 @@
 let entityId;
 
+let gptResponseObject = {
+    "status": "success",
+    "data": {
+        "id": "209905207",
+        "firstName": "John",
+        "lastName": "Doe",
+        "phoneNumber": "054-643-9229"
+    }
+};
+
 ZOHO.embeddedApp.on("PageLoad", async (data) => {
     console.log(data);
     entityId = data.EntityId;
@@ -49,13 +59,19 @@ $(document).ready(() => {
 
         try {
             const selectedRole = $('input[type="checkbox"][name="role"]:checked').val();
-            const idInput = $('#idInput').val().trim();
+            let idInput = $('#idInput').val().trim();
             const passportCheckbox = $('#passportCheckbox').is(':checked');
             const idFile = $('#idFile')[0].files[0];
 
             if (!selectedRole) {
                 swal('Error', 'אנא בחר תפקיד.', 'error');
                 return;
+            }
+
+            if (!idInput && idFile) {
+                // Fetch gptResponseObject from the file
+                idInput = gptResponseObject.data.id;
+                console.log("ID from GPT response:", idInput);
             }
 
             let idValidationResult;
