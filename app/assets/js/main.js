@@ -6,7 +6,7 @@ let gptResponseObject = {
         "id": "209905207",
         "firstName": "John",
         "lastName": "Doe",
-        "phoneNumber": "054-643-9229"
+        "DOB": "1990-01-01"
     }
 };
 
@@ -96,6 +96,11 @@ $(document).ready(() => {
                 if (contact) {
                     console.log("Existing contact found:", contact);
                     console.log("idInput:", idInput); // this is the id of the contact
+
+                    // Update DOB if contact is found
+                    const updateDOBResponse = await updateContactDOB(contact.id, gptResponseObject.data.DOB);
+                    console.log("DOB updated:", updateDOBResponse);
+
                     let passportCheckbox = $('#passportCheckbox').is(':checked');
                     console.log("passportCheckbox:", passportCheckbox);
                     let mobile = contact.Mobile;
@@ -221,7 +226,28 @@ $(document).ready(() => {
         }
     });
 });
-
+//--------------------------------------------------------------------------------
+async function updateContactDOB(contactId, dob) {
+    const formattedDOB = getISOFormattedDate(new Date(dob));
+    console.log("Formatted DOB:", formattedDOB);
+    const config = {
+        Entity: "Contacts",
+        RecordID: contactId,
+        APIData: {
+            id: contactId,
+            Date_of_Birth: formattedDOB
+        },
+        Trigger: ["workflow", "blueprint"]
+    };
+    try {
+        let response = await ZOHO.CRM.API.updateRecord(config);
+        console.log("Contact DOB updated:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to update contact DOB:", error);
+        throw error;
+    }
+}
 //--------------------------------------------------------------------------------
 function isValidId(id) {
     id = String(id).trim();
@@ -533,3 +559,11 @@ async function associateContactRoleWithDeal(contactRoleId, dealId) {
         throw error;
     }
 }
+//--------------------------------------------------------------------------------
+const getISOFormattedDate = (date) => {
+    const year = date.getFullYear();
+    const month = ('0' + (date.getMonth() + 1)).slice(-2); // Add leading zero
+    const day = ('0' + date.getDate()).slice(-2); // Add leading zero
+    return `${year}-${month}-${day}`;
+};
+
