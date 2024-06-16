@@ -443,6 +443,7 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobi
 }
 //--------------------------------------------------------------------------------//
 async function createContactEntry(id, contactInfo, passportCheckbox) {
+    const formattedDOB = getISOFormattedDate(new Date(gptResponseObject.data.DOB));
     console.log("entered createContactEntry function");
     console.log("passportCheckbox after entering the function:", passportCheckbox);
     var recordData = {
@@ -450,7 +451,8 @@ async function createContactEntry(id, contactInfo, passportCheckbox) {
         First_Name: contactInfo.firstName,
         Last_Name: contactInfo.lastName,
         Mobile: contactInfo.phoneNumber,
-        Passport: passportCheckbox
+        Passport: passportCheckbox,
+        Date_of_Birth: formattedDOB
         //   Passport: $('#passportCheckbox').is(':checked') ? true : false
     };
 
