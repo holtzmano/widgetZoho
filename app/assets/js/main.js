@@ -487,14 +487,18 @@ function combineFullName(firstName, lastName) {
 function showAdditionalInputFields() {
     $('#confirmButton, #cancelButton').addClass('hidden');
 
+    const idInput = $('#idInput').val().trim();
+    const firstNameValue = idInput === '' ? gptResponseObject.data.firstName : '';
+    const lastNameValue = idInput === '' ? gptResponseObject.data.lastName : '';
+
     var fieldsHtml = `
       <div class="input-group">
         <label for="firstName" class="label">שם פרטי:</label>
-        <input type="text" id="firstName" name="firstName">
+        <input type="text" id="firstName" name="firstName" value="${firstNameValue}">
       </div>
       <div class="input-group">
         <label for="lastName" class="label">שם משפחה:</label>
-        <input type="text" id="lastName" name="lastName">
+        <input type="text" id="lastName" name="lastName" value="${lastNameValue}">
       </div>
       <div class="input-group">
         <label for="phoneNumber" class="label">נייד:</label>
