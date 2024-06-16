@@ -73,6 +73,46 @@ $(document).ready(() => {
                 return;
             }
 
+            if (idFile) {
+                const validFileTypes = ['image/jpeg', 'image/png'];
+                if (!validFileTypes.includes(idFile.type)) {
+                    swal('Error', 'Invalid file type. Please upload a JPEG or PNG image.', 'error');
+                    return;
+                }
+
+                if (idFile.size > 5 * 1024 * 1024) { // 5MB limit
+                    swal('Error', 'File size exceeds the limit of 5MB.', 'error');
+                    return;
+                }
+
+                // Upload file to server
+                const formData = new FormData();
+                formData.append('file', idFile);
+
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const { id_number, first_name, last_name } = data;
+
+                    // Use the extracted ID to check for an existing contact
+                    let contact = await checkForExistingContact(id_number);
+
+                    if (contact) {
+                        // Update existing contact
+                        // Your existing logic here
+                    } else {
+                        // Create new contact
+                        // Your existing logic here
+                    }
+                } else {
+                    swal('Error', 'Failed to process the file. Please try again.', 'error');
+                }
+            }
+
             try {
                 let contact;
                 contact = await checkForExistingContact(idInput);
