@@ -85,13 +85,26 @@ $(document).ready(() => {
                     console.log("passportCheckbox:", passportCheckbox);
                     let mobile = contact.Mobile;
                     console.log("mobile:", mobile);
+                    // const crResponse = await createContactRoleEntry(idInput, selectedRole, contact.Full_Name, passportCheckbox, mobile);
+                    // console.log('Contact role creation response:', crResponse);
+                    // const contactRoleId = crResponse.data.id;
+                    // console.log(`Contact role entry created with ID: ${contactRoleId}`);
+
+                    // await associateContactRoleWithContact(contactRoleId, contact.id);
+                    // await associateContactRoleWithDeal(contactRoleId, entityId);
+                    //
+                    // added:
+                    //
                     const crResponse = await createContactRoleEntry(idInput, selectedRole, contact.Full_Name, passportCheckbox, mobile);
                     console.log('Contact role creation response:', crResponse);
                     const contactRoleId = crResponse.data.id;
                     console.log(`Contact role entry created with ID: ${contactRoleId}`);
 
-                    await associateContactRoleWithContact(contactRoleId, contact.id);
-                    await associateContactRoleWithDeal(contactRoleId, entityId);
+                    await Promise.all([
+                        associateContactRoleWithContact(contactRoleId, contact.id),
+                        associateContactRoleWithDeal(contactRoleId, entityId)
+                    ]);
+
                 } else {
                     console.log("No contact found, showing additional fields.");
                     swal("לידיעתך", "לא נמצא ת״ז מזהה במערכת: " + idInput + ". אנא מלא פרטים עבור איש קשר פוטנציאלי חדש זה.", "info");
@@ -140,7 +153,7 @@ $(document).ready(() => {
                                 console.log("Full Name:", fullName);
 
                                 const newContactResponse = await createContactEntry(idInput, { firstName, lastName, phoneNumber }, passportCheckbox);
-                                
+
                                 if (newContactResponse && newContactResponse.length > 0) {
                                     console.log("newContactResponse:", newContactResponse);
                                     const newContactId = newContactResponse[0].details.id;
@@ -151,7 +164,7 @@ $(document).ready(() => {
                                     console.log("mobile:", mobile);
                                     const newCrResponse = await createContactRoleEntry(idInput, selectedRole, fullName, passportCheckbox, mobile);
                                     console.log('Contact role creation response:', newCrResponse);
-                                    if (newCrResponse && newCrResponse.length > 0) {
+                                    if (newCrResponse) {
                                         const newContactRoleId = newCrResponse.data.id;
                                         console.log(`Contact role entry created with ID: ${newContactRoleId}`);
 
@@ -400,7 +413,7 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobi
     console.log("Contact role data:", contactRoleData);
 
     console.log("logDetails:", logDetails);
-    
+
     try {
         let response = await callCreateContactRoleFunction(contactRoleData);
         console.log("Contact role entry created response:", response);
@@ -583,7 +596,7 @@ async function callCreateContactRoleFunction(contactRoleData) {
 }
 //--------------------------------------------------------------------------------
 async function callAssociateContactRoleWithContact(contactRoleId, contactId) {
-    let func_name = "associatecontactrolewithcontact"; 
+    let func_name = "associatecontactrolewithcontact";
     console.log("Contact Role ID for CRM function:", contactRoleId);
     console.log("Contact ID for CRM function:", contactId);
 
@@ -612,7 +625,7 @@ async function callAssociateContactRoleWithContact(contactRoleId, contactId) {
 //--------------------------------------------------------------------------------
 // 
 async function callAssociateContactRoleWithDeal(contactRoleId, dealId) {
-    let func_name = "associatecontactrolewithdeal"; 
+    let func_name = "associatecontactrolewithdeal";
     console.log("Contact Role ID for CRM function:", contactRoleId);
     console.log("deal ID for CRM function:", dealId);
 
