@@ -1,15 +1,5 @@
 let entityId;
 
-let gptResponseObject = {
-    "status": "success",
-    "data": {
-        "id": "209905207",
-        "firstName": "John",
-        "lastName": "Doe",
-        "DOB": "1990-01-01"
-    }
-};
-
 ZOHO.embeddedApp.on("PageLoad", async (data) => {
     console.log(data);
     entityId = data.EntityId;
@@ -59,19 +49,12 @@ $(document).ready(() => {
 
         try {
             const selectedRole = $('input[type="checkbox"][name="role"]:checked').val();
-            let idInput = $('#idInput').val().trim();
+            const idInput = $('#idInput').val().trim();
             const passportCheckbox = $('#passportCheckbox').is(':checked');
-            const idFile = $('#idFile')[0].files[0];
 
             if (!selectedRole) {
                 swal('Error', 'אנא בחר תפקיד.', 'error');
                 return;
-            }
-
-            if (!idInput && idFile) {
-                // Fetch gptResponseObject from the file
-                idInput = gptResponseObject.data.id;
-                console.log("ID from GPT response:", idInput);
             }
 
             let idValidationResult;
@@ -96,11 +79,6 @@ $(document).ready(() => {
                 if (contact) {
                     console.log("Existing contact found:", contact);
                     console.log("idInput:", idInput); // this is the id of the contact
-
-                    // Update DOB if contact is found
-                    const updateDOBResponse = await updateContactDOB(contact.id, gptResponseObject.data.DOB);
-                    console.log("DOB updated:", updateDOBResponse);
-
                     let passportCheckbox = $('#passportCheckbox').is(':checked');
                     console.log("passportCheckbox:", passportCheckbox);
                     let mobile = contact.Mobile;
@@ -226,28 +204,7 @@ $(document).ready(() => {
         }
     });
 });
-//--------------------------------------------------------------------------------
-async function updateContactDOB(contactId, dob) {
-    const formattedDOB = getISOFormattedDate(new Date(dob));
-    console.log("Formatted DOB:", formattedDOB);
-    const config = {
-        Entity: "Contacts",
-        RecordID: contactId,
-        APIData: {
-            id: contactId,
-            Date_of_Birth: formattedDOB
-        },
-        Trigger: ["workflow", "blueprint"]
-    };
-    try {
-        let response = await ZOHO.CRM.API.updateRecord(config);
-        console.log("Contact DOB updated:", response.data);
-        return response.data;
-    } catch (error) {
-        console.error("Failed to update contact DOB:", error);
-        throw error;
-    }
-}
+
 //--------------------------------------------------------------------------------
 function isValidId(id) {
     id = String(id).trim();
@@ -443,7 +400,6 @@ async function createContactRoleEntry(id, role, fullName, passportCheckbox, mobi
 }
 //--------------------------------------------------------------------------------//
 async function createContactEntry(id, contactInfo, passportCheckbox) {
-    const formattedDOB = getISOFormattedDate(new Date(gptResponseObject.data.DOB));
     console.log("entered createContactEntry function");
     console.log("passportCheckbox after entering the function:", passportCheckbox);
     var recordData = {
@@ -451,8 +407,7 @@ async function createContactEntry(id, contactInfo, passportCheckbox) {
         First_Name: contactInfo.firstName,
         Last_Name: contactInfo.lastName,
         Mobile: contactInfo.phoneNumber,
-        Passport: passportCheckbox,
-        Date_of_Birth: formattedDOB
+        Passport: passportCheckbox
         //   Passport: $('#passportCheckbox').is(':checked') ? true : false
     };
 
@@ -489,18 +444,14 @@ function combineFullName(firstName, lastName) {
 function showAdditionalInputFields() {
     $('#confirmButton, #cancelButton').addClass('hidden');
 
-    const idInput = $('#idInput').val().trim();
-    const firstNameValue = idInput === '' ? gptResponseObject.data.firstName : '';
-    const lastNameValue = idInput === '' ? gptResponseObject.data.lastName : '';
-
     var fieldsHtml = `
       <div class="input-group">
         <label for="firstName" class="label">שם פרטי:</label>
-        <input type="text" id="firstName" name="firstName" value="${firstNameValue}">
+        <input type="text" id="firstName" name="firstName">
       </div>
       <div class="input-group">
         <label for="lastName" class="label">שם משפחה:</label>
-        <input type="text" id="lastName" name="lastName" value="${lastNameValue}">
+        <input type="text" id="lastName" name="lastName">
       </div>
       <div class="input-group">
         <label for="phoneNumber" class="label">נייד:</label>
@@ -565,11 +516,3 @@ async function associateContactRoleWithDeal(contactRoleId, dealId) {
         throw error;
     }
 }
-//--------------------------------------------------------------------------------
-const getISOFormattedDate = (date) => {
-    const year = date.getFullYear();
-    const month = ('0' + (date.getMonth() + 1)).slice(-2); // Add leading zero
-    const day = ('0' + date.getDate()).slice(-2); // Add leading zero
-    return `${year}-${month}-${day}`;
-};
-

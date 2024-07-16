@@ -16,14 +16,14 @@ body, html {
   max-width: 400px; /* Maximum width of the container */
 }
 
-input[type="text"], input[type="checkbox"], input[type="file"] {
+input[type="text"], input[type="checkbox"] {
   padding: 8px;
   border: 1px solid #ccc; /* Standard border color */
   border-radius: 4px; /* Rounded borders for inputs */
   margin-top: 5px; /* Spacing above the inputs */
 }
 
-input[type="text"], input[type="file"] {
+input[type="text"] {
   width: calc(100% - 16px); /* Responsive width calculation */
 }
 
